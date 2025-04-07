@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Story } from "@shared/schema";
 import { Narrator } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import NarrationControl from "./NarrationControl";
 import templeBorderSrc from "@/assets/temple-border.svg";
 
 interface StoryContentProps {
@@ -77,6 +78,14 @@ const StoryContent: React.FC<StoryContentProps> = ({ story, narrator, onReset })
           <h2 className="text-3xl font-bold text-center mb-6 font-['Baloo_2'] text-[#8D6E63] pt-2">{story.story_title}</h2>
           
           <div className="w-20 h-1 mx-auto bg-[#FF9933] mb-6 rounded-full opacity-60" />
+          
+          {/* Narration Control */}
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+            <NarrationControl 
+              narrator={narrator} 
+              storyText={getStoryVersion()} 
+            />
+          </div>
           
           <ScrollArea className="h-[60vh] pr-2 mb-2">
             <div 

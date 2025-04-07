@@ -21,7 +21,13 @@ const narrators: Narrator[] = [
     color: "saffron",
     avatarSrc: gogiAvatarSrc,
     borderColor: "border-[#FF9933]",
-    textColor: "text-[#FF9933]"
+    textColor: "text-[#FF9933]",
+    voice: {
+      rate: 1.2,       // Slightly faster - energetic monkey
+      pitch: 1.3,      // Higher pitch for playful character
+      volume: 1,
+      voiceName: "Google UK English Male"  // Will fallback if not available
+    }
   },
   {
     id: "tara",
@@ -30,7 +36,13 @@ const narrators: Narrator[] = [
     color: "deepblue",
     avatarSrc: taraAvatarSrc,
     borderColor: "border-[#138808]",
-    textColor: "text-[#138808]"
+    textColor: "text-[#138808]",
+    voice: {
+      rate: 1,         // Normal rate
+      pitch: 1,        // Normal pitch
+      volume: 1,
+      voiceName: "Google UK English Female"  // Will fallback if not available
+    }
   },
   {
     id: "anaya",
@@ -39,7 +51,13 @@ const narrators: Narrator[] = [
     color: "purple",
     avatarSrc: anayaAvatarSrc,
     borderColor: "border-[#9C27B0]",
-    textColor: "text-[#9C27B0]"
+    textColor: "text-[#9C27B0]",
+    voice: {
+      rate: 0.9,       // Slightly slower for wise, thoughtful character
+      pitch: 0.9,      // Slightly deeper for wise character
+      volume: 1,
+      voiceName: "Google UK English Female"  // Will fallback if not available
+    }
   }
 ];
 
