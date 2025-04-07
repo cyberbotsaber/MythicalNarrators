@@ -104,8 +104,8 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="relative inline-block"
         >
-          <div className="temple-border inline-block px-8 py-2 mb-2 bg-white">
-            <h1 className="text-4xl md:text-5xl font-bold text-[#9C27B0] font-['Baloo_2']">Mythika</h1>
+          <div className="temple-border header-border inline-block px-8 py-2 mb-2 bg-white">
+            <h1 className="text-4xl md:text-5xl font-bold text-[#FF9933] font-['Yatra_One'] tracking-wider drop-shadow-sm">Mythika</h1>
           </div>
           
           <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">

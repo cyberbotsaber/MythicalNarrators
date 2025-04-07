@@ -24,9 +24,14 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.temple-border:hover {
+.temple-border:not(.header-border):hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.header-border {
+  transform: none !important;
+  transition: box-shadow 0.3s ease;
 }
 
 .temple-border::before {
