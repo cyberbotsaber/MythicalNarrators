@@ -11,6 +11,32 @@ interface NarrationControlProps {
   className?: string;
 }
 
+// Split text into manageable chunks to improve speech synthesis reliability
+const chunkText = (text: string, maxLength = 250): string[] => {
+  const sentences = text
+    .replace(/([.?!])\s*(?=[A-Z])/g, "$1|") // Split on sentence boundaries
+    .split("|");
+  
+  const chunks: string[] = [];
+  let currentChunk = "";
+  
+  sentences.forEach(sentence => {
+    // If adding this sentence would make the chunk too long
+    if (currentChunk.length + sentence.length > maxLength && currentChunk.length > 0) {
+      chunks.push(currentChunk);
+      currentChunk = sentence;
+    } else {
+      currentChunk += sentence;
+    }
+  });
+  
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
+  
+  return chunks;
+};
+
 const NarrationControl: React.FC<NarrationControlProps> = ({ 
   narrator, 
   storyText,
@@ -21,7 +47,11 @@ const NarrationControl: React.FC<NarrationControlProps> = ({
   const [isBrowserSupported, setIsBrowserSupported] = useState(true);
   const [currentRate, setCurrentRate] = useState(narrator.voice.rate);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [voicesLoaded, setVoicesLoaded] = useState(false);
   
+  const textChunksRef = useRef<string[]>([]);
+  const currentChunkIndexRef = useRef(0);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
 
@@ -34,34 +64,72 @@ const NarrationControl: React.FC<NarrationControlProps> = ({
         description: "Your browser doesn't support text-to-speech functionality.",
         variant: "destructive"
       });
+      return;
     }
-  }, [toast]);
 
-  // Reset speech synthesis when component unmounts
-  useEffect(() => {
+    // Initialize text chunks
+    textChunksRef.current = chunkText(storyText);
+
+    // Load available voices
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      if (availableVoices.length > 0) {
+        setVoices(availableVoices);
+        setVoicesLoaded(true);
+      }
+    };
+
+    // Chrome and Edge need a callback
+    if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    // Try to load voices immediately (for Firefox and Safari)
+    loadVoices();
+
+    // Check if voices loaded after a delay
+    const voiceCheckTimeout = setTimeout(() => {
+      if (!voicesLoaded) {
+        loadVoices();
+      }
+    }, 1000);
+
     return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      clearTimeout(voiceCheckTimeout);
+    };
+  }, [storyText, toast, voicesLoaded]);
+
+  // Ensure proper cleanup
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+        setIsPaused(false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
     };
   }, []);
 
-  // Handle playing the narration
-  const handlePlay = () => {
-    if (!window.speechSynthesis) return;
+  // Speaks the current chunk and sets up the next one
+  const speakCurrentChunk = () => {
+    if (!window.speechSynthesis || textChunksRef.current.length === 0) return;
     
-    if (isPaused && speechSynthRef.current) {
-      window.speechSynthesis.resume();
-      setIsPaused(false);
-      setIsPlaying(true);
-      return;
-    }
+    const currentChunk = textChunksRef.current[currentChunkIndexRef.current];
+    if (!currentChunk) return;
     
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    // Create a new utterance
-    const utterance = new SpeechSynthesisUtterance(storyText);
+    const utterance = new SpeechSynthesisUtterance(currentChunk);
     speechSynthRef.current = utterance;
     
     // Set voice properties
@@ -69,12 +137,20 @@ const NarrationControl: React.FC<NarrationControlProps> = ({
     utterance.pitch = narrator.voice.pitch;
     utterance.volume = narrator.voice.volume;
     
-    // Try to find the requested voice
-    if (narrator.voice.voiceName && window.speechSynthesis.getVoices().length > 0) {
-      const voices = window.speechSynthesis.getVoices();
-      const voice = voices.find(v => v.name === narrator.voice.voiceName);
-      if (voice) {
-        utterance.voice = voice;
+    // Select a voice - first try requested voice, then English, then default
+    if (voices.length > 0) {
+      // First try the specific requested voice
+      let selectedVoice = narrator.voice.voiceName ? 
+        voices.find(v => v.name === narrator.voice.voiceName) : null;
+      
+      // If not found, try to find any English voice
+      if (!selectedVoice) {
+        selectedVoice = voices.find(v => v.lang.startsWith('en'));
+      }
+      
+      // If still not found, use default voice
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
     }
     
@@ -85,43 +161,114 @@ const NarrationControl: React.FC<NarrationControlProps> = ({
     };
     
     utterance.onend = () => {
-      setIsPlaying(false);
-      setIsPaused(false);
-      speechSynthRef.current = null;
+      // Move to next chunk
+      currentChunkIndexRef.current++;
+      
+      // If there are more chunks, speak the next one
+      if (currentChunkIndexRef.current < textChunksRef.current.length) {
+        speakCurrentChunk();
+      } else {
+        // We've finished all chunks
+        setIsPlaying(false);
+        setIsPaused(false);
+        currentChunkIndexRef.current = 0;
+        speechSynthRef.current = null;
+      }
     };
     
     utterance.onerror = (event) => {
       console.error("Speech synthesis error:", event);
       setIsPlaying(false);
       setIsPaused(false);
+      currentChunkIndexRef.current = 0;
       speechSynthRef.current = null;
-      toast({
-        title: "Narration Error",
-        description: "There was a problem with the narration. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Show error toast only if not a cancel error (which happens normally when stopping)
+      if (event.error !== 'canceled') {
+        // Try a simpler approach with just the first chunk if we hit an error
+        if (textChunksRef.current.length > 1 && currentChunkIndexRef.current === 0) {
+          textChunksRef.current = [storyText.substring(0, 200)]; // Just take the first part
+          setTimeout(() => {
+            try {
+              speakCurrentChunk();
+            } catch (err) {
+              console.error("Fallback speech failed:", err);
+              toast({
+                title: "Narration Unavailable",
+                description: "Sorry, audio narration may not work in this environment. Try a different browser.",
+                variant: "destructive"
+              });
+            }
+          }, 500);
+        } else {
+          toast({
+            title: "Narration Issue",
+            description: "The audio narration couldn't continue. Try using a shorter segment or different browser.",
+            variant: "destructive"
+          });
+        }
+      }
     };
     
     // Start speaking
     window.speechSynthesis.speak(utterance);
+  };
+
+  // Handle playing the narration
+  const handlePlay = () => {
+    if (!window.speechSynthesis) return;
+    
+    // If paused, just resume
+    if (isPaused) {
+      try {
+        window.speechSynthesis.resume();
+        setIsPaused(false);
+        setIsPlaying(true);
+      } catch (error) {
+        console.error("Resume error:", error);
+        // If resume fails, restart from current chunk
+        handleStop();
+        speakCurrentChunk();
+      }
+      return;
+    }
+    
+    // Cancel any existing speech
+    handleStop();
+    
+    // Start from the beginning
+    currentChunkIndexRef.current = 0;
+    speakCurrentChunk();
   };
   
   // Handle pausing the narration
   const handlePause = () => {
     if (!window.speechSynthesis || !isPlaying) return;
     
-    window.speechSynthesis.pause();
-    setIsPaused(true);
-    setIsPlaying(false);
+    try {
+      window.speechSynthesis.pause();
+      setIsPaused(true);
+      setIsPlaying(false);
+    } catch (error) {
+      console.error("Pause error:", error);
+      // If pause fails, stop completely
+      handleStop();
+    }
   };
   
   // Handle stopping the narration
   const handleStop = () => {
     if (!window.speechSynthesis) return;
     
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+    } catch (error) {
+      console.error("Cancel error:", error);
+    }
+    
     setIsPlaying(false);
     setIsPaused(false);
+    currentChunkIndexRef.current = 0;
     speechSynthRef.current = null;
   };
   
@@ -131,10 +278,18 @@ const NarrationControl: React.FC<NarrationControlProps> = ({
     
     // If currently playing, update the speed in real-time
     if (isPlaying && speechSynthRef.current) {
+      // Remember current position
+      const currentChunkIndex = currentChunkIndexRef.current;
+      
+      // Stop current playback
       handleStop();
+      
+      // Restore position and continue with new rate
+      currentChunkIndexRef.current = currentChunkIndex;
+      
       // Small delay before restarting with new rate
       setTimeout(() => {
-        handlePlay();
+        speakCurrentChunk();
       }, 100);
     }
   };
@@ -270,6 +425,13 @@ const NarrationControl: React.FC<NarrationControlProps> = ({
             <span>Slow</span>
             <span>Normal</span>
             <span>Fast</span>
+          </div>
+          
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <p className="text-xs text-gray-500 italic">
+              Note: Text-to-speech narration may not work in all browsers or environments. 
+              If you have trouble, try using Chrome or reading the story yourself.
+            </p>
           </div>
         </motion.div>
       )}
