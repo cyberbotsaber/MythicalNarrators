@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="50" viewBox="0 0 400 50" xmlns="http://www.w3.org/2000/svg">
+  <!-- Temple-inspired border pattern -->
+  <g stroke="#FF993380" stroke-width="1.5" fill="none">
+    <!-- Main temple outline -->
+    <path d="M10,45 L10,15 L25,5 L40,15 L40,45" />
+    <path d="M40,45 L40,20 L55,10 L70,20 L70,45" />
+    <path d="M70,45 L70,15 L85,5 L100,15 L100,45" />
+    <path d="M100,45 L100,20 L115,10 L130,20 L130,45" />
+    <path d="M130,45 L130,15 L145,5 L160,15 L160,45" />
+    <path d="M160,45 L160,20 L175,10 L190,20 L190,45" />
+    <path d="M190,45 L190,15 L205,5 L220,15 L220,45" />
+    <path d="M220,45 L220,20 L235,10 L250,20 L250,45" />
+    <path d="M250,45 L250,15 L265,5 L280,15 L280,45" />
+    <path d="M280,45 L280,20 L295,10 L310,20 L310,45" />
+    <path d="M310,45 L310,15 L325,5 L340,15 L340,45" />
+    <path d="M340,45 L340,20 L355,10 L370,20 L370,45" />
+    <path d="M370,45 L370,15 L385,5 L390,15 L390,45" />
+    
+    <!-- Base -->
+    <line x1="5" y1="45" x2="395" y2="45" stroke-width="3" />
+    
+    <!-- Decorative elements -->
+    <circle cx="25" cy="20" r="3" />
+    <circle cx="85" cy="20" r="3" />
+    <circle cx="145" cy="20" r="3" />
+    <circle cx="205" cy="20" r="3" />
+    <circle cx="265" cy="20" r="3" />
+    <circle cx="325" cy="20" r="3" />
+    <circle cx="385" cy="20" r="3" />
+    
+    <!-- Lotus details -->
+    <path d="M25,30 C28,32 32,32 35,30" />
+    <path d="M85,30 C88,32 92,32 95,30" />
+    <path d="M145,30 C148,32 152,32 155,30" />
+    <path d="M205,30 C208,32 212,32 215,30" />
+    <path d="M265,30 C268,32 272,32 275,30" />
+    <path d="M325,30 C328,32 332,32 335,30" />
+    <path d="M385,30 C388,32 392,32 395,30" />
+  </g>
+</svg>

@@ -5,59 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Mythika - Puranic Stories for Children</title>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Tiro+Devanagari+Sanskrit:ital@0;1&display=swap" rel="stylesheet">
-    <style>
-      /* Temple-like border styling */
-      .temple-border {
-        position: relative;
-        overflow: hidden;
-        border-radius: 12px;
-      }
-      
-      .temple-border::before {
-        content: "";
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(45deg, #FF9933, #FFC107, #9C27B0, #138808);
-        z-index: -1;
-        border-radius: 14px;
-      }
-      
-      body {
-        background-color: #FFF8E1;
-        background-image: radial-gradient(circle at 50% 50%, rgba(255, 153, 51, 0.05) 10%, transparent 10.5%),
-                          radial-gradient(circle at 30% 30%, rgba(255, 153, 51, 0.05) 5%, transparent 5.5%),
-                          radial-gradient(circle at 70% 70%, rgba(255, 153, 51, 0.05) 5%, transparent 5.5%);
-        background-size: 60px 60px;
-      }
-      
-      .back-button {
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .back-button::after {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: -100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: 0.5s;
-      }
-      
-      .back-button:hover::after {
-        left: 100%;
-      }
-    </style>
+    <meta name="description" content="Mythika brings Indian Puranic stories to life with three unique narrators for children to enjoy" />
+    <meta name="theme-color" content="#FF9933">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪔</text></svg>">
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- This script injects a replit badge into the page, please feel free to remove this line -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-badge-v3.js"></script>
   </body>
 </html>

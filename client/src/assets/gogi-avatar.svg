@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="95" fill="#FFA94D" />
+  <circle cx="100" cy="100" r="85" fill="#FF9933" />
+  
+  <!-- Mandala border pattern -->
+  <g stroke="#FFF1DD" stroke-width="2" fill="none">
+    <circle cx="100" cy="100" r="80" />
+    <circle cx="100" cy="100" r="73" />
+    <path d="M100,20 L100,180 M20,100 L180,100" />
+    <path d="M37,37 L163,163 M37,163 L163,37" />
+    <path d="M50,28 C100,35 100,165 150,172" transform="rotate(0 100 100)" />
+    <path d="M50,28 C100,35 100,165 150,172" transform="rotate(90 100 100)" />
+    <path d="M50,28 C100,35 100,165 150,172" transform="rotate(180 100 100)" />
+    <path d="M50,28 C100,35 100,165 150,172" transform="rotate(270 100 100)" />
+  </g>
+  
+  <!-- Monkey face -->
+  <g>
+    <!-- Face -->
+    <circle cx="100" cy="95" r="50" fill="#8B4513" />
+    
+    <!-- Ears -->
+    <circle cx="60" cy="65" r="20" fill="#8B4513" />
+    <circle cx="140" cy="65" r="20" fill="#8B4513" />
+    <circle cx="60" cy="65" r="10" fill="#FFDAB9" />
+    <circle cx="140" cy="65" r="10" fill="#FFDAB9" />
+    
+    <!-- Eyes -->
+    <circle cx="80" cy="85" r="10" fill="white" />
+    <circle cx="120" cy="85" r="10" fill="white" />
+    <circle cx="80" cy="85" r="5" fill="black" />
+    <circle cx="120" cy="85" r="5" fill="black" />
+    
+    <!-- Muzzle -->
+    <ellipse cx="100" cy="105" rx="20" ry="15" fill="#FFDAB9" />
+    
+    <!-- Nose -->
+    <ellipse cx="100" cy="95" rx="8" ry="5" fill="#333" />
+    
+    <!-- Mouth -->
+    <path d="M85,110 Q100,120 115,110" stroke="#333" stroke-width="3" fill="none" />
+    
+    <!-- Playful accessories -->
+    <path d="M70,75 L65,65 M130,75 L135,65" stroke="#FFF" stroke-width="2" />
+    <path d="M90,125 Q100,135 110,125" stroke="#FF5722" stroke-width="3" fill="none" />
+  </g>
+</svg>

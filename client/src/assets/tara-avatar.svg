@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="95" fill="#79E28A" />
+  <circle cx="100" cy="100" r="85" fill="#138808" />
+  
+  <!-- Mandala border pattern -->
+  <g stroke="#D8F3DB" stroke-width="2" fill="none">
+    <circle cx="100" cy="100" r="80" />
+    <circle cx="100" cy="100" r="73" />
+    <path d="M100,20 L100,180 M20,100 L180,100" />
+    <path d="M37,37 L163,163 M37,163 L163,37" />
+    
+    <!-- Lotus pattern -->
+    <path d="M100,30 C110,50 135,60 160,60 C135,80 120,100 120,130 C110,110 100,105 80,110 C90,80 75,50 40,40 C70,40 90,45 100,30" />
+    <path d="M100,30 C110,50 135,60 160,60 C135,80 120,100 120,130 C110,110 100,105 80,110 C90,80 75,50 40,40 C70,40 90,45 100,30" transform="rotate(72 100 100)" />
+    <path d="M100,30 C110,50 135,60 160,60 C135,80 120,100 120,130 C110,110 100,105 80,110 C90,80 75,50 40,40 C70,40 90,45 100,30" transform="rotate(144 100 100)" />
+    <path d="M100,30 C110,50 135,60 160,60 C135,80 120,100 120,130 C110,110 100,105 80,110 C90,80 75,50 40,40 C70,40 90,45 100,30" transform="rotate(216 100 100)" />
+    <path d="M100,30 C110,50 135,60 160,60 C135,80 120,100 120,130 C110,110 100,105 80,110 C90,80 75,50 40,40 C70,40 90,45 100,30" transform="rotate(288 100 100)" />
+  </g>
+  
+  <!-- Explorer character -->
+  <g>
+    <!-- Face -->
+    <circle cx="100" cy="95" r="40" fill="#FFDAB9" />
+    
+    <!-- Hair -->
+    <path d="M60,95 C60,65 85,55 100,55 C115,55 140,65 140,95" fill="#5D3915" />
+    <path d="M65,90 C65,70 85,65 100,65 C115,65 135,70 135,90" fill="#5D3915" />
+    
+    <!-- Eyes -->
+    <circle cx="85" cy="90" r="5" fill="#2E3192" />
+    <circle cx="115" cy="90" r="5" fill="#2E3192" />
+    <path d="M80,85 C85,80 89,80 93,85" stroke="#333" stroke-width="1.5" fill="none" />
+    <path d="M107,85 C112,80 116,80 120,85" stroke="#333" stroke-width="1.5" fill="none" />
+    
+    <!-- Nose and mouth -->
+    <path d="M100,95 L100,105" stroke="#333" stroke-width="1.5" />
+    <path d="M90,110 C95,115 105,115 110,110" stroke="#333" stroke-width="1.5" fill="none" />
+    
+    <!-- Explorer's gear -->
+    <path d="M70,130 C90,140 110,140 130,130" fill="none" stroke="#5D3915" stroke-width="5" />
+    <rect x="90" y="115" width="20" height="5" fill="#FFC107" />
+    <circle cx="100" cy="135" r="15" fill="#FFDAB9" />
+    <circle cx="100" cy="135" r="12" fill="#FFC107" />
+    <path d="M100,123 L100,147 M88,135 L112,135" stroke="#5D3915" stroke-width="2" />
+  </g>
+</svg>
