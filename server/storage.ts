@@ -1,8 +1,8 @@
-import { users, type User, type InsertUser, stories, type Story } from "@shared/schema";
+import { users, type User, type InsertUser, stories, type Story, storySchedule, type StorySchedule, type InsertStorySchedule, type InsertStory } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, gte } from "drizzle-orm";
 
-// modify the interface with any CRUD methods
-// you might need
-
+// IStorage interface defines all the methods our storage classes must implement
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -12,24 +12,130 @@ export interface IStorage {
   getStory(id: number): Promise<Story | undefined>;
   getLatestStory(): Promise<Story | undefined>;
   getAllStories(): Promise<Story[]>;
+  createStory(story: InsertStory): Promise<Story>;
+  getFeaturedStories(): Promise<Story[]>;
+  getStoryForDate(date: Date): Promise<Story | undefined>;
+  scheduleStory(schedule: InsertStorySchedule): Promise<StorySchedule>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private stories: Map<number, Story>;
-  currentId: number;
-  storyId: number;
+// DatabaseStorage implements storage using PostgreSQL database
+export class DatabaseStorage implements IStorage {
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
 
-  constructor() {
-    this.users = new Map();
-    this.stories = new Map();
-    this.currentId = 1;
-    this.storyId = 1;
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  // Story methods
+  async getStory(id: number): Promise<Story | undefined> {
+    const [story] = await db.select().from(stories).where(eq(stories.id, id));
+    return story;
+  }
+
+  async getLatestStory(): Promise<Story | undefined> {
+    // First check if there's a scheduled story for today
+    const todayStory = await this.getStoryForDate(new Date());
+    if (todayStory) return todayStory;
     
-    // Initialize with a default story
-    this.stories.set(1, {
-      id: 1,
+    // Otherwise, get the most recently added story
+    const [story] = await db.select().from(stories).orderBy(desc(stories.date_added)).limit(1);
+    return story;
+  }
+
+  async getAllStories(): Promise<Story[]> {
+    return db.select().from(stories).orderBy(desc(stories.date_added));
+  }
+
+  async createStory(story: InsertStory): Promise<Story> {
+    const [newStory] = await db.insert(stories).values(story).returning();
+    return newStory;
+  }
+
+  async getFeaturedStories(): Promise<Story[]> {
+    return db.select().from(stories).where(eq(stories.featured, true)).orderBy(desc(stories.date_added));
+  }
+
+  // Get story scheduled for a specific date
+  async getStoryForDate(date: Date): Promise<Story | undefined> {
+    // Format date to only compare year, month, day
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    // Find active schedule for the given date
+    const schedules = await db
+      .select()
+      .from(storySchedule)
+      .where(
+        and(
+          eq(storySchedule.active, true)
+        )
+      )
+      .orderBy(desc(storySchedule.scheduled_date));
+    
+    // Find the closest schedule date that is before or equal to the requested date
+    let targetSchedule = undefined;
+    
+    for (const schedule of schedules) {
+      const scheduleDate = new Date(schedule.scheduled_date);
+      
+      // If the schedule is for today or a past date (closest to requested date)
+      if (scheduleDate <= endOfDay) {
+        targetSchedule = schedule;
+        break;
+      }
+    }
+    
+    if (!targetSchedule) return undefined;
+    
+    // Get the associated story
+    const [story] = await db
+      .select()
+      .from(stories)
+      .where(eq(stories.id, targetSchedule.story_id))
+      .limit(1);
+    
+    return story;
+  }
+
+  // Schedule a story for a specific date
+  async scheduleStory(scheduleData: InsertStorySchedule): Promise<StorySchedule> {
+    const [schedule] = await db
+      .insert(storySchedule)
+      .values(scheduleData)
+      .returning();
+    
+    return schedule;
+  }
+}
+
+// Create and seed the database with initial story if needed
+async function setupInitialData() {
+  // Check if we have any stories
+  const storiesCount = await db.select({ count: stories.id }).from(stories);
+  
+  // If no stories, add our initial story
+  if (storiesCount.length === 0 || storiesCount[0].count === 0) {
+    console.log("Initializing database with starter content...");
+    
+    // Insert the default Samudra Manthan story
+    await db.insert(stories).values({
       story_title: "The Churning of the Ocean",
+      story_origin: "Ancient India",
+      story_category: "Puranas",
+      featured: true,
       gogi_version: `Hey friends! Gogi here! Let me tell you an AMAZING story about gods and demons and a HUGE ocean of milk! *makes monkey sounds*
 
 So, a long long time ago, the gods were super sad because they weren't immortal. Bummer, right? They really wanted this special drink called Amrita that would make them live forever! But guess what? It was hidden deep in the ocean of milk! Splash splash!
@@ -81,40 +187,12 @@ The story of Samudra Manthan reminds us that life is a balance of sweet and bitt
 Remember, dear ones, within each of you lies both the potential for divinity and the capacity for understanding life's deeper meaning. May this ancient wisdom guide your path.`
     });
   }
-
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
-  }
-
-  async getStory(id: number): Promise<Story | undefined> {
-    return this.stories.get(id);
-  }
-
-  async getLatestStory(): Promise<Story | undefined> {
-    // Get the story with the highest ID (most recent)
-    const stories = Array.from(this.stories.values());
-    if (stories.length === 0) return undefined;
-    
-    return stories.reduce((latest, current) => 
-      current.id > latest.id ? current : latest, stories[0]);
-  }
-
-  async getAllStories(): Promise<Story[]> {
-    return Array.from(this.stories.values());
-  }
 }
 
-export const storage = new MemStorage();
+// Initialize the storage implementation
+export const storage = new DatabaseStorage();
+
+// Setup initial data when the module loads
+setupInitialData().catch(err => {
+  console.error("Error setting up initial data:", err);
+});
