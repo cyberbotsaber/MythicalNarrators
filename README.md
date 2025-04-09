@@ -1,6 +1,7 @@
 # Mythika: Indian Mythological Stories for Children
 
-![Mythika Logo](client/src/assets/mythika-logo.png)
+<img width="218" alt="image" src="https://github.com/user-attachments/assets/1c35e4a2-0e14-43eb-98fa-c900b0e5d7ec" />
+
 
 Mythika is a mobile-friendly web application designed to introduce children ages 6-14 to the rich world of Indian mythology through interactive storytelling. Each story is narrated by three distinct characters, each with their own storytelling style, bringing ancient Puranic tales to life in a way that's engaging and educational.
 
